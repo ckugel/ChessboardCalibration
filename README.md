@@ -16,7 +16,7 @@ docker run --device=/dev/video0:/dev/video0 -v /tmp/.X11-unix:/tmp/.X11-unix -e 
 ### flag explanations
 --device /dev/video:0/dev/video0 allows us to pass in the devide at video0 (probably a camera) and pass it into the contianer
 
--v is to pass the graphics through to X11 which is the window manager on most linux distrobutions.
+-v is to pass the graphics through to X11 which is the window manager on most linux distributions.
 
 -e maps the Display in the docker bash terminal to the current &DISPLAY from the current bash env.
 
