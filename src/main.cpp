@@ -74,3 +74,43 @@ void test() {
 
 
 }
+
+void anothier() {
+      cv::Mat hsv;
+  cv::cvtColor(image, hsv, cv::COLOR_BGR2HSV);
+
+  // Define the range of green hue values (in degrees)
+  const int MIN_HUE = 60;
+  const int MAX_HUE = 150;
+
+  // Define the minimum saturation value for a pixel to be considered green
+  const int MIN_SAT = 50;
+
+  // Create variables to store the most green pixel found so far
+  cv::Vec3b mostGreenPixel(0, 0, 0);
+  int maxSaturation = 0;
+
+  // Iterate over all the pixels in the image
+  for (int y = 0; y < hsv.rows; y++) {
+    for (int x = 0; x < hsv.cols; x++) {
+      // Extract the hue and saturation values of the current pixel
+      cv::Vec3b pixel = hsv.at<cv::Vec3b>(y, x);
+      int hue = pixel[0];
+      int saturation = pixel[1];
+
+      // Check if the current pixel is a green pixel
+      if (hue >= MIN_HUE && hue <= MAX_HUE && saturation >= MIN_SAT) {
+        // Check if the current pixel has a higher saturation value than the most green pixel found so far
+        if (saturation > maxSaturation) {
+          // Update the most green pixel found so far
+          mostGreenPixel = pixel;
+          maxSaturation = saturation;
+        }
+      }
+    }
+  }
+
+  // Print the RGB values of the most green pixel
+  std::cout << "Most green pixel: (" << (int)mostGreenPixel[0] << ", " << (int)mostGreenPixel[1] << ", " << (int)mostGreenPixel[2] << ")" << std::endl;
+
+}
