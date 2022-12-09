@@ -40,22 +40,37 @@ int main() {
     Mat im1 = cv::imread(im1path);
     Mat im2 = cv::imread(im2path);
     
-    int dimensionWidth = im1.size().with;
+    int dimensionWidth = im1.size().width;
     int dimensionHeight = im1.size().height;
     
     return -1;
 }
 
 void test() {
-    double camera1CoordX = 0;
-    double camera1CoordY = 0;
-    double camera2CoordX = 15; //incges
-    double camera2CoordY = 0;
-    // saying that camera1 is the origin
-    const std::pair<double, double> CAMERA_ONE_COORDS(0, 0);
-    // x value is 15 inches to the right of camera 1
-    const std::pair<double, double> CAMERA_TWO_COORDS(15, 0); //inches
+    double camera1RealCoordX = 0;
+    double camera1RealCoordY = 0;
+    double camera2RealCoordX = 15; // inches
+    double camera2RealCoordY = 0;
+
+    Mat im1 = cv::imread(im1path);
+    Mat im2 = cv::imread(im2path);
+
+    int dimensionWidth = im1.size().width;
+    int dimensionHeight = im1.size().height;
+
+    int GreenDotXCam1 = -1;
+    int GreenDotYCam2 = -1;
+
+    // bounds for green
+    cv::Scalar lowerBound(30, 80, 40);
+    cv::Scalar upperBound(90, 255, 255);
+
+    Mat binImage;
+    cv::inRange(im1, lowerBound, upperBound, binImage);
 
     const double REAL_DEPTH = 83; // inches
     const double REAL_HEIGHT 12.1; // inches 
+
+
+
 }
