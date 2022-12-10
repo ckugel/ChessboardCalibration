@@ -35,4 +35,8 @@
 
 /build
 
+.idea
+
+cmake-build-debug
+
 compose-dev.yaml
