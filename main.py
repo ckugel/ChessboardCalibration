@@ -1,7 +1,11 @@
 import cv2
 import numpy as np
 
-dimensionsOfBoard = (8, 8)
+intrinsicCameraMatrix = []
+
+locationOfBoard
+
+dimensionsOfBoard = (7, 7)
 
 red_lower_bound = (0, 0, 100)
 red_upper_bound = (240, 240, 240)
@@ -55,20 +59,20 @@ cv2.waitKey(0)"""
 """resized_left = cv2.resize(left_gray, (1008, 756))
 resized_right = cv2.resize(right_gray, (1008, 756))"""
 
-resized_left = left_gray[1100:1600, 1700:2200]
-resized_right = right_gray[1100:1600, 1100:1600]
+"""resized_left = left_gray[1100:1600, 1700:2200]
+resized_right = right_gray[1100:1600, 1100:1600]"""
 
 """cv2.imshow("left", resized_left)
 cv2.imshow("right", resized_right)
 cv2.waitKey(0)"""
 
 krn_L = cv2.getStructuringElement(cv2.MORPH_RECT, (50, 30))
-dlt_L = cv2.dilate(resized_left, krn_L, iterations=5)
-res_L = 255 - cv2.bitwise_and(dlt_L, resized_left)
+dlt_L = cv2.dilate(left_gray, krn_L, iterations=5)
+res_L = 255 - cv2.bitwise_and(dlt_L, left_gray)
 
 krn_R = cv2.getStructuringElement(cv2.MORPH_RECT, (50, 30))
-dlt_R = cv2.dilate(resized_right, krn_R, iterations=5)
-res_R = 255 - cv2.bitwise_and(dlt_R, resized_right)
+dlt_R = cv2.dilate(right_gray, krn_R, iterations=5)
+res_R = 255 - cv2.bitwise_and(dlt_R, right_gray)
 
 """cv2.imshow("left", res_L)
 cv2.imshow("right", res_R)
@@ -82,19 +86,20 @@ cv2.imshow("right", res_R)
 cv2.waitKey(0)"""
 
 # Find the chessboard corners in the left and right images
-ret_left, corners_left = cv2.findChessboardCorners(res_R, dimensionsOfBoard, flags=cv2.CALIB_CB_ADAPTIVE_THRESH +
+ret_left, corners_left = cv2.findChessboardCorners(res_L, dimensionsOfBoard, flags=cv2.CALIB_CB_ADAPTIVE_THRESH +
                                                cv2.CALIB_CB_NORMALIZE_IMAGE)
-ret_right, corners_right = cv2.findChessboardCorners(res_L, dimensionsOfBoard, flags=cv2.CALIB_CB_ADAPTIVE_THRESH +
+ret_right, corners_right = cv2.findChessboardCorners(res_R, dimensionsOfBoard, flags=cv2.CALIB_CB_ADAPTIVE_THRESH +
                                                cv2.CALIB_CB_NORMALIZE_IMAGE)
 
 # If the chessboard corners were found in both images, proceed with calibration
 if ret_left and ret_right:
+    fillers = []
+    filler2 = []
     # Calculate the stereo calibration parameters
     ret, M1, d1, M2, d2, R, T, E, F = cv2.stereoCalibrate(
         (corners_left, corners_right),
         (left_gray, right_gray),
-        (left_gray.shape[::-1], right_gray.shape[::-1]),
-        None, None
+        (left_gray.shape[::-1], right_gray.shape[::-1])
     )
 
     # Print the stereo calibration parameters

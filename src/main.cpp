@@ -6,7 +6,7 @@
 using namespace std;
 
 //TODO: find real values
-double FOCAL_LENGTH = 0.5; // meters
+double FOCAL_LENGTH = 26E-3; // 26 millimeters
 double DISTANCE_BETWEEN_CAMERAS = 0.381; // meters
 
 /**
