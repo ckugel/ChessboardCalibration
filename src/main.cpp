@@ -21,8 +21,10 @@ double DISTANCE_BETWEEN_CAMERAS = 0.381; // meters
 double* getPolarCoord(double camera1X, double camera1Y, double camera2X, int dimensionX, int dimensionY) {
     // depth from the plane of the cameras
     double depth = (FOCAL_LENGTH * DISTANCE_BETWEEN_CAMERAS) / (camera2X - camera1X);
+    // find the middle of the screen
     int middlePointX = dimensionX / 2;
     int middlePointY = dimensionY / 2;
+    // get angles
     double thetaX = std::asin((middlePointX - camera1X) / depth);
     double thetaY = std::asin((middlePointY - camera1Y) / depth);
 
@@ -58,7 +60,6 @@ std::pair<int, int> getGreenPixel(cv::Mat& image) {
 
             // Check if in range
             if (hue >= MIN_HUE && hue <= MAX_HUE && saturation >= MIN_SAT) {
-                // Check if the current pixel has a higher saturation value than the most green pixel found so far
                 if (saturation > maxSaturation) {
                     maxSaturation = saturation;
                     x0 = x;
@@ -81,30 +82,24 @@ std::pair<int, int> getGreenPixel(cv::Mat& image) {
 }
 
 void test(cv::Mat& im1, cv::Mat& im2) {
-    double camera1RealCoordX = 0;
-    double camera1RealCoordY = 0;
-    double camera2RealCoordX = 0.381;
-    double camera2RealCoordY = 0;
-
-    int dimensionWidth = im1.size().width;
-    int dimensionHeight = im1.size().height;
-
-    int GreenDotXCam1 = -1;
-    int GreenDotYCam2 = -1;
-
-    // bounds for green
-/*    cv::Scalar lowerBound(30, 80, 40);
-    cv::Scalar upperBound(90, 255, 255);
-
-    cv::Mat binImage;
-    cv::inRange(im1, lowerBound, upperBound, binImage);*/
+    const double CAMERA_1_REAL_COORD_X = 0;
+    const double CAMERA_1_REAL_COORD_Y = 0;
+    const double CAMERA_2_REAL_COORD_X = 0.381;
+    const double CAMERA_2_REAL_COORD_Y = 0;
 
     const double REAL_DEPTH = 2.1082;
     const double REAL_HEIGHT = 0.30734;
 
-    std::pair<int, int> im1Pos = getGreenPixel(im1);
-    std::pair<int, int> im2Pos = getGreenPixel(im1);
+    const int dimensionWidth = im1.size().width;
+    const int dimensionHeight = im1.size().height;
 
+    // rect coords of pixels
+    std::pair<int, int> im1Pos = getGreenPixel(im1);
+    // only need X value
+    int im2Pos = getGreenPixel(im2).first;
+
+    double* polarCoord = getPolarCoord(im1Pos.first, im1Pos.second, im2Pos, dimensionWidth, dimensionHeight);
+    std::cout << polarCoord[1] << std::endl;
 }
 
 int main() {
