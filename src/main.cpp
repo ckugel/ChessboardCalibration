@@ -32,9 +32,9 @@ double* getPolarCoord(double camera1X, double camera1Y, double camera2X, int dim
 
 std::pair<int, int> getGreenPixel(cv::Mat& image) {
     cv::Mat hsv;
-    cv::cvtColor(image, hsv, cv::COLOR_BGR2HSV);
+    cv::cvtColor(image, hsv, cv::COLOR_BGR2HSV); // open the image in the hsrv colorspace
 
-    // Define the range of green hue values
+    // Define the range of hue values (first one) to look for gree
     const int MIN_HUE = 60;
     const int MAX_HUE = 150;
 
@@ -45,7 +45,7 @@ std::pair<int, int> getGreenPixel(cv::Mat& image) {
     cv::Vec3b mostGreenPixel(0, 0, 0);
     int maxSaturation = 0;
 
-    // actual values we want
+    // output values
     int y0 = 0;
     int x0 = 0;
 

@@ -1,9 +1,16 @@
 import cv2
 import numpy as np
 
-intrinsicCameraMatrix = []
+# x, y, z
+# 0, 12.5, 83
+locationOfBoard = [0, 0.3175, 2.1082]
 
-locationOfBoard
+focal_Length = 0.023;
+
+intrinsicCameraMatrix = [
+    [focal_Length, 0, locationOfBoard[1]],
+    [0, focal_Length, locationOfBoard[0]]
+]
 
 dimensionsOfBoard = (7, 7)
 
