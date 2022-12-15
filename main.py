@@ -3,13 +3,17 @@ import numpy as np
 
 # x, y, z
 # 0, 12.5, 83
-locationOfBoard = [0, 0.3175, 2.1082]
+locationOfBoard1 = [0, 0.3175, 2.1082]
+locationOfBoard2 = [0.381, 0.3175, 2.1082]
 
-focal_Length = 0.023;
+# I guess that focal length is just a magic number and means nothing
+focal_LengthX = (4032 / 2) / (np.tan(1.2791860172 / 2))
+focal_LengthY = (3024 / 2) / (np.tan(0.71954217833 / 2))
 
 intrinsicCameraMatrix = [
-    [focal_Length, 0, locationOfBoard[1]],
-    [0, focal_Length, locationOfBoard[0]]
+    [focal_LengthX, 0, 4032 / 2],
+    [0, focal_LengthY, 3024 / 2],
+    [0, 0, 1]
 ]
 
 dimensionsOfBoard = (7, 7)
@@ -94,19 +98,44 @@ cv2.waitKey(0)"""
 
 # Find the chessboard corners in the left and right images
 ret_left, corners_left = cv2.findChessboardCorners(res_L, dimensionsOfBoard, flags=cv2.CALIB_CB_ADAPTIVE_THRESH +
-                                               cv2.CALIB_CB_NORMALIZE_IMAGE)
+                                                                                   cv2.CALIB_CB_NORMALIZE_IMAGE)
 ret_right, corners_right = cv2.findChessboardCorners(res_R, dimensionsOfBoard, flags=cv2.CALIB_CB_ADAPTIVE_THRESH +
-                                               cv2.CALIB_CB_NORMALIZE_IMAGE)
+                                                                                     cv2.CALIB_CB_NORMALIZE_IMAGE)
+imgL = cv2.drawChessboardCorners(res_L, dimensionsOfBoard, corners_left, ret_left)
+imgR = cv2.drawChessboardCorners(res_R, dimensionsOfBoard, corners_right, ret_right)
+
+"""cv2.namedWindow('img l', cv2.WINDOW_NORMAL)
+cv2.namedWindow('img r', cv2.WINDOW_NORMAL)
+cv2.imshow('img l', imgL)
+cv2.imshow('img r', imgR)
+cv2.waitKey(0)"""
+
+def mid(left: int, right: int):
+    return (left + right) / 2
+
+
+def getMiddleOfBoard(corners: list[list[int]]):
+    index: int
+    output = corners[0]
+    for index in range(1, len(corners)):
+        output = [mid(corners[index][0], output[0]), mid(corners[index][1], output[1])]
+
 
 # If the chessboard corners were found in both images, proceed with calibration
 if ret_left and ret_right:
-    fillers = []
-    filler2 = []
+
+    ret_left, M1, d1, rvecsL, tvecsL = cv2.calibrateCamera(locationOfBoard1, [[1959, 1330]],
+                                                         left_gray.shape[::-1], None, None)
+    ret_right, M2, d2, rvecsR, tvecsR = cv2.calibrateCamera(locationOfBoard2, [[1278, 1330]],
+                                                          right_gray.shape[::-1], None, None)
+
     # Calculate the stereo calibration parameters
     ret, M1, d1, M2, d2, R, T, E, F = cv2.stereoCalibrate(
         (corners_left, corners_right),
         (left_gray, right_gray),
-        (left_gray.shape[::-1], right_gray.shape[::-1])
+        (left_gray.shape[::-1], right_gray.shape[::-1]),
+        camerMatrix1=intrinsicCameraMatrix,
+        camerMatrix2=intrinsicCameraMatrix
     )
 
     # Print the stereo calibration parameters

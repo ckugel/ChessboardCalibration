@@ -13,6 +13,10 @@ double DISTANCE_BETWEEN_CAMERAS = 0.381; // meters
 double FOV_X = 1.2791860172; //radians
 double FOV_Y = 0.71954217833; // radians
 
+void calibrate() {
+
+}
+
 /**
 * function to get distance
 * parameters are in pixels
