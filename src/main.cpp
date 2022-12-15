@@ -2,12 +2,16 @@
 #include <iostream>
 #include <cmath>
 #include <filesystem>
+#include <array>
 
 using namespace std;
 
 //TODO: find real values
-double FOCAL_LENGTH = 26E-3; // 26 millimeters
+double FOCAL_LENGTH = 5.1E-3; // 5.1 millimeters
 double DISTANCE_BETWEEN_CAMERAS = 0.381; // meters
+
+double FOV_X = 1.2791860172; //radians
+double FOV_Y = 0.71954217833; // radians
 
 /**
 * function to get distance
@@ -22,11 +26,12 @@ double* getPolarCoord(double camera1X, double camera1Y, double camera2X, int dim
     // depth from the plane of the cameras
     double depth = (FOCAL_LENGTH * DISTANCE_BETWEEN_CAMERAS) / (camera2X - camera1X);
     // find the middle of the screen
-    int middlePointX = dimensionX / 2;
-    int middlePointY = dimensionY / 2;
+    double middlePointX = (double) dimensionX / 2;
+    double middlePointY = (double) dimensionY / 2;
     // get angles
-    double thetaX = std::asin((middlePointX - camera1X) / depth);
-    double thetaY = std::asin((middlePointY - camera1Y) / depth);
+    // convert from pixels to degrees
+    double thetaX = (middlePointX - camera1X) * (FOV_X / dimensionX);
+    double thetaY = (middlePointY - camera1Y) * (FOV_Y / dimensionY);
 
     // return the polar coordinates
     return new double[] {thetaX, thetaY, depth};
@@ -99,7 +104,9 @@ void test(cv::Mat& im1, cv::Mat& im2) {
     int im2Pos = getGreenPixel(im2).first;
 
     double* polarCoord = getPolarCoord(im1Pos.first, im1Pos.second, im2Pos, dimensionWidth, dimensionHeight);
-    std::cout << polarCoord[1] << std::endl;
+    std::cout << polarCoord[2] << std::endl;
+
+    delete[] polarCoord;
 }
 
 int main() {
@@ -118,4 +125,55 @@ int main() {
 }
 
 
+// ChatGPT SAD
+/*
+
+ * function to calculate the disparity between the two images using block matching
+
+double getDisparity(double camera1X, double camera1Y, double camera2X, int dimensionX, int dimensionY) {
+    // get the images from the two cameras
+    Image image1 = getImageFromCamera(1);
+    Image image2 = getImageFromCamera(2);
+
+    // select a patch of pixels around the given coordinates in the first image
+    int patchSize = 7; // patch size is 7x7 pixels
+    int startX = camera1X - patchSize / 2;
+    int startY = camera1Y - patchSize / 2;
+    int endX = camera1X + patchSize / 2;
+    int endY = camera1Y + patchSize / 2;
+    Image patch1 = image1.getSubImage(startX, startY, endX, endY);
+
+    // initialize the disparity to the maximum possible value
+    double disparity = Double.MAX_VALUE;
+
+    // search for the best matching patch in the second image
+    for (int x = 0; x < dimensionX; x++) {
+        for (int y = 0; y < dimensionY; y++) {
+            // select a patch of pixels around the current coordinates in the second image
+            startX = x - patchSize / 2;
+            startY = y - patchSize / 2;
+            endX = x + patchSize / 2;
+            endY = y + patchSize / 2;
+            Image patch2 = image2.getSubImage(startX, startY, endX, endY);
+
+            // calculate the sum of absolute differences (SAD) between the two patches
+            double sad = 0;
+            for (int i = 0; i < patchSize; i++) {
+                for (int j = 0; j < patchSize; j++) {
+                    sad += Math.abs(patch1.getPixel(i, j) - patch2.getPixel(i, j));
+                }
+            }
+
+            // update the disparity if the current patch has a lower SAD value
+            if (sad < disparity) {
+                disparity = sad;
+            }
+        }
+    }
+
+    // return the calculated disparity
+    return disparity;
+}
+
+*/
 
