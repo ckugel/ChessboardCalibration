@@ -128,15 +128,10 @@ public:
         }
 
         flag = 0;
-        // so many branches TODO: PRUNE THESE IT'S PAINFUl
-        if(calibFixPrincipalPoint) flag |= CALIB_FIX_PRINCIPAL_POINT;
-        if(calibZeroTangentDist)   flag |= CALIB_ZERO_TANGENT_DIST;
-        if(aspectRatio)            flag |= CALIB_FIX_ASPECT_RATIO;
-        if(fixK1)                  flag |= CALIB_FIX_K1;
-        if(fixK2)                  flag |= CALIB_FIX_K2;
-        if(fixK3)                  flag |= CALIB_FIX_K3;
-        if(fixK4)                  flag |= CALIB_FIX_K4;
-        if(fixK5)                  flag |= CALIB_FIX_K5;
+        
+        flag |= (CALIB_FIX_PRINCIPAL_POINT * calibFixPrincipalPoint) | (CALIB_ZERO_TANGENT_DIST * calibZeroTangentDist) |
+                (CALIB_FIX_ASPECT_RATIO * (bool) aspectRatio) | (CALIB_FIX_K1 + fixK1) | (CALIB_FIX_K2 + fixK2) | (CALIB_FIX_K3 + fixK3)
+                | (CALIB_FIX_K4 + fixK4) | (CALIB_FIX_K5 + fixK5);
 
         if (useFisheye) {
             // the fisheye model has its own enum, so overwrite the flags
