@@ -9,7 +9,7 @@ enable_testing()
 
 include_directories( ${OpenCV_INCLUDE_DIRS} )
 
-add_executable(dispmap src/main.cpp)
+add_executable(dispmap src/main.cpp src/Settings.cpp src/Settings.h)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

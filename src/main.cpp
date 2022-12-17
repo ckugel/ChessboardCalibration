@@ -5,6 +5,8 @@
 #include <cstdio>
 #include <unordered_map>
 
+#include "Settings.h"
+
 #include <opencv2/core.hpp>
 #include <opencv2/core/utility.hpp>
 #include <opencv2/imgproc.hpp>
@@ -15,222 +17,6 @@
 
 using namespace cv;
 using namespace std;
-
-class Settings {
-public:
-    enum Pattern { NOT_EXISTING, CHESSBOARD, CIRCLES_GRID, ASYMMETRIC_CIRCLES_GRID };
-    enum InputType { INVALID, CAMERA, VIDEO_FILE, IMAGE_LIST };
-
-
-
-    Settings() : goodInput(false) {
-        pattern_map["CHESSBOARD"] = CHESSBOARD;
-        pattern_map["CIRCLES_GRID"] = CIRCLES_GRID;
-        pattern_map["ASYMMETRIC_CIRCLES_GRID"] = ASYMMETRIC_CIRCLES_GRID;
-
-    }
-
-    void write(FileStorage& fs) const {
-        fs << "{"
-           << "BoardSize_Width"  << boardSize.width
-           << "BoardSize_Height" << boardSize.height
-           << "Square_Size"         << squareSize
-           << "Calibrate_Pattern" << patternToUse
-           << "Calibrate_NrOfFrameToUse" << nrFrames
-           << "Calibrate_FixAspectRatio" << aspectRatio
-           << "Calibrate_AssumeZeroTangentialDistortion" << calibZeroTangentDist
-           << "Calibrate_FixPrincipalPointAtTheCenter" << calibFixPrincipalPoint
-
-           << "Write_DetectedFeaturePoints" << writePoints
-           << "Write_extrinsicParameters"   << writeExtrinsics
-           << "Write_gridPoints" << writeGrid
-           << "Write_outputFileName"  << outputFileName
-
-           << "Show_UndistortedImage" << showUndistorted
-
-           << "Input_FlipAroundHorizontalAxis" << flipVertical
-           << "Input_Delay" << delay
-           << "Input" << input
-           << "}";
-    }
-
-    void read(const FileNode& node) {
-        node["BoardSize_Width" ] >> boardSize.width;
-        node["BoardSize_Height"] >> boardSize.height;
-        node["Calibrate_Pattern"] >> patternToUse;
-        node["Square_Size"]  >> squareSize;
-        node["Calibrate_NrOfFrameToUse"] >> nrFrames;
-        node["Calibrate_FixAspectRatio"] >> aspectRatio;
-        node["Write_DetectedFeaturePoints"] >> writePoints;
-        node["Write_extrinsicParameters"] >> writeExtrinsics;
-        node["Write_gridPoints"] >> writeGrid;
-        node["Write_outputFileName"] >> outputFileName;
-        node["Calibrate_AssumeZeroTangentialDistortion"] >> calibZeroTangentDist;
-        node["Calibrate_FixPrincipalPointAtTheCenter"] >> calibFixPrincipalPoint;
-        node["Calibrate_UseFisheyeModel"] >> useFisheye;
-        node["Input_FlipAroundHorizontalAxis"] >> flipVertical;
-        node["Show_UndistortedImage"] >> showUndistorted;
-        node["Input"] >> input;
-        node["Input_Delay"] >> delay;
-        node["Fix_K1"] >> fixK1;
-        node["Fix_K2"] >> fixK2;
-        node["Fix_K3"] >> fixK3;
-        node["Fix_K4"] >> fixK4;
-        node["Fix_K5"] >> fixK5;
-
-        validate();
-    }
-    void validate() {
-        goodInput = true;
-        if (boardSize.width <= 0 || boardSize.height <= 0) { // has to be in quadrant one
-            cerr << "Invalid Board size: " << boardSize.width << " " << boardSize.height << endl;
-            goodInput = false;
-        }
-        if (squareSize <= 10e-6) { // can't be too small
-            cerr << "Invalid square size " << squareSize << endl;
-            goodInput = false;
-        }
-        if (nrFrames <= 0) {
-            cerr << "Invalid number of frames " << nrFrames << endl;
-            goodInput = false;
-        }
-
-        if (input.empty()) {   // Check for valid input
-            inputType = INVALID;
-        }
-        else {
-            if (input[0] >= '0' && input[0] <= '9') {
-                stringstream ss(input);
-                ss >> cameraID;
-                inputType = CAMERA;
-            }
-            else {
-                if (isListOfImages(input) && readStringList(input, imageList)) {
-                    inputType = IMAGE_LIST;
-                    nrFrames = (nrFrames < (int)imageList.size()) ? nrFrames : (int)imageList.size();
-                }
-                else
-                    inputType = VIDEO_FILE;
-            }
-            if (inputType == CAMERA) {
-                inputCapture.open(cameraID);
-            }
-            if (inputType == VIDEO_FILE) {
-                inputCapture.open(input);
-            }
-            if (inputType != IMAGE_LIST && !inputCapture.isOpened()) {
-                inputType = INVALID;
-            }
-        }
-        if (inputType == INVALID) {
-            cerr << " Input does not exist: " << input;
-            goodInput = false;
-        }
-
-        flag = 0;
-
-        flag |= (CALIB_FIX_PRINCIPAL_POINT * calibFixPrincipalPoint) | (CALIB_ZERO_TANGENT_DIST * calibZeroTangentDist) |
-                (CALIB_FIX_ASPECT_RATIO * (bool) aspectRatio) | (CALIB_FIX_K1 + fixK1) | (CALIB_FIX_K2 + fixK2) | (CALIB_FIX_K3 + fixK3)
-                | (CALIB_FIX_K4 + fixK4) | (CALIB_FIX_K5 + fixK5);
-
-        /* if (useFisheye) {
-            // the fisheye model has its own enum, so overwrite the flags
-            flag = fisheye::CALIB_FIX_SKEW | fisheye::CALIB_RECOMPUTE_EXTRINSIC;
-            if(fixK1)                   flag |= fisheye::CALIB_FIX_K1;
-            if(fixK2)                   flag |= fisheye::CALIB_FIX_K2;
-            if(fixK3)                   flag |= fisheye::CALIB_FIX_K3;
-            if(fixK4)                   flag |= fisheye::CALIB_FIX_K4;
-            if (calibFixPrincipalPoint) flag |= fisheye::CALIB_FIX_PRINCIPAL_POINT;
-        } */
-
-        // if the value exists in the map use that value
-        calibrationPattern = (pattern_map.find(patternToUse) == pattern_map.end()) ? NOT_EXISTING : pattern_map[patternToUse];
-
-        if (calibrationPattern == NOT_EXISTING) {
-            cerr << " Camera calibration mode does not exist: " << patternToUse << endl;
-            goodInput = false;
-        }
-        atImageList = 0;
-    }
-    Mat nextImage() {
-        Mat result;
-        if( inputCapture.isOpened() ) {
-            Mat view0;
-            inputCapture >> view0;
-            view0.copyTo(result);
-        }
-        else if( atImageList < imageList.size() ) {
-            result = imread(imageList[atImageList++], IMREAD_COLOR);
-        }
-
-        return result;
-    }
-
-    static bool readStringList( const string& filename, vector<string>& l ) {
-        l.clear();
-        FileStorage fs(filename, FileStorage::READ);
-        if(!fs.isOpened()) {
-            return false;
-        }
-        FileNode n = fs.getFirstTopLevelNode();
-        if(n.type() != FileNode::SEQ) {
-            return false;
-        }
-        FileNodeIterator it = n.begin(), it_end = n.end();
-        // eeeewwwww file iterator for loops r so gross
-        for(; it != it_end; ++it) {
-            l.push_back((string) *it);
-        }
-        return true;
-    }
-
-    static bool isListOfImages( const string& filename) {
-        string s(filename);
-        // Look for file extension
-        if(s.find(".xml") == string::npos && s.find(".yaml") == string::npos && s.find(".yml") == string::npos) {
-            return false;
-        }
-        else {
-            return true;
-        }
-    }
-
-    // FFFIIIEEEELLLLLLDDDDDDSSSSSSSSSSS
-public:
-    Size boardSize;              // The size of the board -> Number of items by width and height
-    Pattern calibrationPattern;  // One of the Chessboard, circles, or asymmetric circle pattern
-    float squareSize;            // The size of a square in your defined unit (point, millimeter,etc).
-    int nrFrames;                // The number of frames to use from the input for calibration
-    float aspectRatio;           // The aspect ratio
-    int delay;                   // In case of a video input
-    bool writePoints;            // Write detected feature points
-    bool writeExtrinsics;        // Write extrinsic parameters
-    bool writeGrid;              // Write refined 3D target grid points
-    bool calibZeroTangentDist;   // Assume zero tangential distortion
-    bool calibFixPrincipalPoint; // Fix the principal point at the center
-    bool flipVertical;           // Flip the captured images around the horizontal axis
-    string outputFileName;       // The name of the file where to write
-    bool showUndistorted;        // Show undistorted images after calibration
-    string input;                // The input ->
-    bool useFisheye;             // use fisheye camera model for calibration
-    bool fixK1;                  // fix K1 distortion coefficient
-    bool fixK2;                  // fix K2 distortion coefficient
-    bool fixK3;                  // fix K3 distortion coefficient
-    bool fixK4;                  // fix K4 distortion coefficient
-    bool fixK5;                  // fix K5 distortion coefficient
-
-    int cameraID;
-    vector<string> imageList;
-    size_t atImageList;
-    VideoCapture inputCapture;
-    InputType inputType;
-    bool goodInput;
-    int flag;
-
-private:
-    string patternToUse;
-    unordered_map<string, Pattern> pattern_map;
-};
 
 static inline void read(const FileNode& node, Settings& x, const Settings& default_value = Settings()) {
     if (node.empty()) {
@@ -246,7 +32,7 @@ enum { DETECTION = 0, CAPTURING = 1, CALIBRATED = 2 };
 bool runCalibrationAndSave(Settings& s, Size imageSize, Mat&  cameraMatrix, Mat& distCoeffs,
                            vector<vector<Point2f> > imagePoints, float grid_width, bool release_object);
 
-int main(int argc, char* argv[]) {
+void start_calibration(int argc, char* argv[]) {
     const String keys
             = "{help h usage ? |           | print this message            }"
               "{@settings      |SerringsFiles.xml| input setting file            }"
@@ -260,12 +46,12 @@ int main(int argc, char* argv[]) {
                  "how to edit it. It may be any OpenCV supported file format XML/YAML.");
     if (!parser.check()) {
         parser.printErrors();
-        return 0;
+        exit(0);
     }
 
     if (parser.has("help")) {
         parser.printMessage();
-        return 0;
+        exit(0);
     }
 
     //! [file_read]
@@ -275,7 +61,7 @@ int main(int argc, char* argv[]) {
     if (!fs.isOpened()) {
         cout << "Could not open the configuration file: \"" << inputSettingsFile << "\"" << endl;
         parser.printMessage();
-        return -1;
+        exit(-1);
     }
     fs["Settings"] >> s;
     fs.release();                                         // close Settings file
@@ -286,7 +72,7 @@ int main(int argc, char* argv[]) {
 
     if (!s.goodInput) {
         cout << "Invalid input detected. Application stopping. " << endl;
-        return -1;
+        exit(-1);
     }
 
     int winSize = parser.get<int>("winSize");
@@ -314,7 +100,7 @@ int main(int argc, char* argv[]) {
         view = s.nextImage();
 
         //-----  If no more image, or got enough, then stop calibration and show result -------------
-        if( mode == CAPTURING && imagePoints.size() >= (size_t)s.nrFrames ) {
+        if(mode == CAPTURING && imagePoints.size() >= (size_t)s.nrFrames) {
             if(runCalibrationAndSave(s, imageSize,  cameraMatrix, distCoeffs, imagePoints, grid_width,
                                      release_object))
                 mode = CALIBRATED;
@@ -323,9 +109,10 @@ int main(int argc, char* argv[]) {
         }
         if(view.empty()) {         // If there are no more images stop the loop
             // if calibration threshold was not reached yet, calibrate now
-            if( mode != CALIBRATED && !imagePoints.empty() )
-                runCalibrationAndSave(s, imageSize,  cameraMatrix, distCoeffs, imagePoints, grid_width,
+            if(mode != CALIBRATED && !imagePoints.empty()) {
+                runCalibrationAndSave(s, imageSize, cameraMatrix, distCoeffs, imagePoints, grid_width,
                                       release_object);
+            }
             break;
         }
         //! [get_input]
@@ -386,7 +173,7 @@ int main(int argc, char* argv[]) {
         //----------------------------- Output Text ------------------------------------------------
         //! [output_text]
         string msg = (mode == CAPTURING) ? "100/100" :
-                     mode == CALIBRATED ? "Calibrated" : "Press 'g' to start";
+                     mode == CALIBRATED ? "Calibrated" : "Press 'g' to start_calibration";
         int baseLine = 0;
         Size textSize = getTextSize(msg, 1, 1, 1, &baseLine);
         Point textOrigin(view.cols - 2*textSize.width - 10, view.rows - 2*baseLine - 10);
@@ -428,8 +215,9 @@ int main(int argc, char* argv[]) {
         if(key  == ESC_KEY)
             break;
 
-        if(key == 'u' && mode == CALIBRATED)
+        if(key == 'u' && mode == CALIBRATED) {
             s.showUndistorted = !s.showUndistorted;
+        }
 
         if(s.inputCapture.isOpened() && key == 'g') {
             mode = CAPTURING;
@@ -440,28 +228,24 @@ int main(int argc, char* argv[]) {
 
     // -----------------------Show the undistorted image for the image list ------------------------
     //! [show_results]
-    if( s.inputType == Settings::IMAGE_LIST && s.showUndistorted && !cameraMatrix.empty())
-    {
+    if(s.inputType == Settings::IMAGE_LIST && s.showUndistorted && !cameraMatrix.empty()) {
         Mat view, rview, map1, map2;
 
-        if (s.useFisheye)
-        {
+        if (s.useFisheye) {
             Mat newCamMat;
             fisheye::estimateNewCameraMatrixForUndistortRectify(cameraMatrix, distCoeffs, imageSize,
                                                                 Matx33d::eye(), newCamMat, 1);
             fisheye::initUndistortRectifyMap(cameraMatrix, distCoeffs, Matx33d::eye(), newCamMat, imageSize,
                                              CV_16SC2, map1, map2);
         }
-        else
-        {
+        else {
             initUndistortRectifyMap(
                     cameraMatrix, distCoeffs, Mat(),
                     getOptimalNewCameraMatrix(cameraMatrix, distCoeffs, imageSize, 1, imageSize, 0), imageSize,
                     CV_16SC2, map1, map2);
         }
 
-        for(size_t i = 0; i < s.imageList.size(); i++ )
-        {
+        for(size_t i = 0; i < s.imageList.size(); i++) {
             view = imread(s.imageList[i], IMREAD_COLOR);
             if(view.empty())
                 continue;
@@ -473,9 +257,8 @@ int main(int argc, char* argv[]) {
         }
     }
     //! [show_results]
-
-    return 0;
 }
+
 
 //! [compute_errors]
 static double computeReprojectionErrors( const vector<vector<Point3f> >& objectPoints,
@@ -726,4 +509,12 @@ bool runCalibrationAndSave(Settings& s, Size imageSize, Mat& cameraMatrix, Mat& 
         saveCameraParams(s, imageSize, cameraMatrix, distCoeffs, rvecs, tvecs, reprojErrs, imagePoints,
                          totalAvgErr, newObjPoints);
     return ok;
+}
+
+
+
+int main(int argc, char* argv[]) {
+    start_calibration(argc, argv);
+
+    return 0;
 }
