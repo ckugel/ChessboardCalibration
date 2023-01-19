@@ -1,7 +1,26 @@
 <?xml version="1.0"?>
 <opencv_storage>
     <images>
-        images/img1.JPG
-        images/img2.JPG
+        media/leftcamera/Im_L_0.png
+        media/leftcamera/Im_L_1.png
+        media/leftcamera/Im_L_2.png
+        media/leftcamera/Im_L_3.png
+        media/leftcamera/Im_L_4.png
+        media/leftcamera/Im_L_5.png
+        media/leftcamera/Im_L_6.png
+        media/leftcamera/Im_L_7.png
+        media/leftcamera/Im_L_8.png
+        media/leftcamera/Im_L_9.png
+        media/leftcamera/Im_L_10.png
+        media/leftcamera/Im_L_11.png
+        media/leftcamera/Im_L_12.png
+        media/leftcamera/Im_L_13.png
+        media/leftcamera/Im_L_14.png
+        media/leftcamera/Im_L_15.png
+        media/leftcamera/Im_L_16.png
+        media/leftcamera/Im_L_17.png
+        media/leftcamera/Im_L_18.png
+        media/leftcamera/Im_L_19.png
+        media/leftcamera/Im_L_20.png
     </images>
 </opencv_storage>
