@@ -1,26 +1,25 @@
 <?xml version="1.0"?>
 <opencv_storage>
     <images>
-        media/leftcamera/Im_L_0.png
-        media/leftcamera/Im_L_1.png
-        media/leftcamera/Im_L_2.png
-        media/leftcamera/Im_L_3.png
-        media/leftcamera/Im_L_4.png
-        media/leftcamera/Im_L_5.png
-        media/leftcamera/Im_L_6.png
-        media/leftcamera/Im_L_7.png
-        media/leftcamera/Im_L_8.png
-        media/leftcamera/Im_L_9.png
-        media/leftcamera/Im_L_10.png
-        media/leftcamera/Im_L_11.png
-        media/leftcamera/Im_L_12.png
-        media/leftcamera/Im_L_13.png
-        media/leftcamera/Im_L_14.png
-        media/leftcamera/Im_L_15.png
-        media/leftcamera/Im_L_16.png
-        media/leftcamera/Im_L_17.png
-        media/leftcamera/Im_L_18.png
-        media/leftcamera/Im_L_19.png
-        media/leftcamera/Im_L_20.png
+        media/rightcamera/Im_R_1.png
+        media/rightcamera/Im_R_2.png
+        media/rightcamera/Im_R_3.png
+        media/rightcamera/Im_R_4.png
+        media/rightcamera/Im_R_5.png
+        media/rightcamera/Im_R_6.png
+        media/rightcamera/Im_R_7.png
+        media/rightcamera/Im_R_8.png
+        media/rightcamera/Im_R_9.png
+        media/rightcamera/Im_R_10.png
+        media/rightcamera/Im_R_11.png
+        media/rightcamera/Im_R_12.png
+        media/rightcamera/Im_R_13.png
+        media/rightcamera/Im_R_14.png
+        media/rightcamera/Im_R_15.png
+        media/rightcamera/Im_R_16.png
+        media/rightcamera/Im_R_17.png
+        media/rightcamera/Im_R_18.png
+        media/rightcamera/Im_R_19.png
+        media/rightcamera/Im_R_20.png
     </images>
 </opencv_storage>

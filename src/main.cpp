@@ -35,7 +35,7 @@ bool runCalibrationAndSave(Settings& s, Size imageSize, Mat&  cameraMatrix, Mat&
 void start_calibration(int argc, char* argv[]) {
     const String keys
             = "{help h usage ? |           | print this message            }"
-              "{@settings      |SerringsFiles.xml| input setting file            }"
+              "{@settings      |SettingsFiles.xml| input setting file            }"
               "{d              |           | actual distance between top-left and top-right corners of "
               "the calibration grid }"
               "{winSize        | 11        | Half of search window for cornerSubPix }";
