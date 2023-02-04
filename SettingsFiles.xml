@@ -52,8 +52,8 @@
         <!-- If true (non-zero) distortion coefficient k3 will be equals to zero.-->
         <Fix_K3>0</Fix_K3>
         <!-- If true (non-zero) distortion coefficient k4 will be equals to zero.-->
-        <Fix_K4>1</Fix_K4>
+        <Fix_K4>0</Fix_K4>
         <!-- If true (non-zero) distortion coefficient k5 will be equals to zero.-->
-        <Fix_K5>1</Fix_K5>
+        <Fix_K5>0</Fix_K5>
     </Settings>
 </opencv_storage>
