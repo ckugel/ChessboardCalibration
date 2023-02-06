@@ -1,9 +1,11 @@
 <?xml version="1.0"?>
 <opencv_storage>
     <images>
-        leftCalibration/leftFrame1.jpg
-        leftCalibration/leftFrame2.jpg
-        leftCalibration/leftFrame3.jpg
-        leftCalibration/leftFrame4.jpg
+        rightCalibration/imageR0.png
+        rightCalibration/imageR1.png
+        rightCalibration/imageR2.png
+        rightCalibration/imageR3.png
+        rightCalibration/imageR4.png
+        rightCalibration/imageR5.png
     </images>
 </opencv_storage>
