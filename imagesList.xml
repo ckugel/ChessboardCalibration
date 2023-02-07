@@ -1,11 +1,33 @@
 <?xml version="1.0"?>
 <opencv_storage>
     <images>
-        rightCalibration/imageR0.png
-        rightCalibration/imageR1.png
-        rightCalibration/imageR2.png
-        rightCalibration/imageR3.png
-        rightCalibration/imageR4.png
-        rightCalibration/imageR5.png
+        leftCalibration/left1.jpg
+        leftCalibration/left2.jpg
+        leftCalibration/left3.jpg
+        leftCalibration/left4.jpg
+        leftCalibration/left5.jpg
+        leftCalibration/left6.jpg
+        leftCalibration/left7.jpg
+        leftCalibration/left8.jpg
+        leftCalibration/left9.jpg
+        leftCalibration/left10.jpg
+        leftCalibration/left11.jpg
+        leftCalibration/left12.jpg
+        leftCalibration/left13.jpg
+        leftCalibration/left14.jpg
+        leftCalibration/left15.jpg
+        leftCalibration/left16.jpg
+        leftCalibration/left17.jpg
+        leftCalibration/left18.jpg
+        leftCalibration/left19.jpg
+        leftCalibration/left20.jpg
+        leftCalibration/left21.jpg
+        leftCalibration/left22.jpg
+        leftCalibration/left23.jpg
+        leftCalibration/left24.jpg
+        leftCalibration/left25.jpg
+        leftCalibration/left26.jpg
+        leftCalibration/left27.jpg
+        leftCalibration/left28.jpg
     </images>
 </opencv_storage>

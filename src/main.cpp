@@ -661,6 +661,18 @@ static void saveCameraParams( Settings& s, Size& imageSize, Mat& cameraMatrix, M
     if (s.writeExtrinsics && !reprojErrs.empty())
         fs << "per_view_reprojection_errors" << Mat(reprojErrs);
 
+/*    vector<Point3f> objectPoints;
+    float  square_size = s.squareSize;
+    float height = (float) s.boardSize.height;
+    float width = (float) s.boardSize.width;
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            objectPoints.emplace_back(((float) j * square_size), ((float) i * square_size), 0);
+        }
+    }
+
+    fs << "object_points" << objectPoints;*/
+
     if(s.writeExtrinsics && !rvecs.empty() && !tvecs.empty()) {
         CV_Assert(rvecs[0].type() == tvecs[0].type());
         Mat bigmat((int)rvecs.size(), 6, CV_MAKETYPE(rvecs[0].type(), 1));
